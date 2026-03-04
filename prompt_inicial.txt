@@ -1,0 +1,19 @@
+Desarrolla un app en streamlit para una clase inicial de matemática.
+
+Quiero hacer un ejercicio en clase de Análisis Matemático I en donde les hago preguntas a los estudiantes y ellos responden. 
+
+Necesitaría luego saber qué respondieron y en qué porcentajes.
+
+Quiero que cada estudiante se pueda logear fácilmente tan sólo entrando su nombre y dni, y que luego eso genere un historial de todas sus preguntas.
+
+Yo debo tener un usuario con mail facundo@pymetech.com.ar que tenga acceso a ver las respuestas y estadisticas de lo que va respondiendo los estudiantes
+
+No uses los accesos de usuarios por autenticación a la base de datos SQL, sino un sistema sencillo de usuarios en una tabla SQL.
+
+En tokens.py tienes las credenciales para una base de datos en supabase para usar en la app de streamlit. Crea un .gitignore que oculte tokens.py
+
+En tablas.sql dame la sintaxis SQL para generar las tablas necesarias para que funcione la app
+
+Estas son las preguntas que quiero hacer. Para cada pregunta da 4 respuestas y luego de que el estudiante responda muestra la respuesta correcta y una pequeña explicación creada por tienes
+
+
