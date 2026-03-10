@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 -- Insertar usuario administrador inicial
 INSERT INTO usuarios (nombre, dni, email, rol)
-VALUES ('Facundo', '33210626', 'facundo@pymetech.com.ar', 'admin')
+VALUES ('Facundo', '33210626', 'facundo@pymetech.com.ar', 'admin'),
+('Pablo', '38403572', 'pablo.h.veron@gmail.com', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- 2. Tabla de preguntas
@@ -191,17 +192,6 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
 -- ── Ejercicio 2: Simplifica (sin exponentes negativos) ───────
 
 (
-  '[Álgebra 2a] ¿Cuánto vale √200 − √32?',
-  '√168',
-  '4√2',
-  '6√2',
-  '14√2',
-  'C',
-  '√200 = √(100·2) = 10√2; √32 = √(16·2) = 4√2. Entonces 10√2 − 4√2 = 6√2.',
-  13
-),
-
-(
   '[Álgebra 2b] Simplifica (3a³b³)(4ab²)².',
   '12a⁵b⁷',
   '48a⁵b⁷',
@@ -210,17 +200,6 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
   'B',
   'Primero (4ab²)² = 16a²b⁴. Luego 3a³b³ · 16a²b⁴ = 48 · a^(3+2) · b^(3+4) = 48a⁵b⁷.',
   14
-),
-
-(
-  '[Álgebra 2c] Simplifica (3x^(3/2)y³ / (x²y^(-1/2)))^(-2).',
-  'x/(9y⁷)',
-  '9x/y⁷',
-  'x²/(9y⁷)',
-  '9y⁷/x',
-  'A',
-  'Dentro del paréntesis: 3·x^(3/2-2)·y^(3+1/2) = 3x^(-1/2)y^(7/2). Elevando a -2: 3^(-2)·x^1·y^(-7) = x/(9y⁷).',
-  15
 ),
 
 -- ── Ejercicio 3: Desarrolla y simplifica ─────────────────────
@@ -248,17 +227,6 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
 ),
 
 (
-  '[Álgebra 3c] Desarrolla (√a + √b)(√a − √b).',
-  'a + b',
-  'a − b',
-  '(√a)² − (√b)²',
-  'Tanto B como C son correctas',
-  'D',
-  'Es una diferencia de cuadrados: (√a+√b)(√a−√b) = (√a)² − (√b)² = a − b. Las opciones B y C son expresiones equivalentes, por lo que ambas son correctas.',
-  18
-),
-
-(
   '[Álgebra 3d] Desarrolla (2x+3)².',
   '4x² + 9',
   '4x² + 6x + 9',
@@ -278,120 +246,6 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
   'B',
   '(x+2)³ = x³ + 3·x²·2 + 3·x·4 + 8 = x³ + 6x² + 12x + 8. Se usa (a+b)³ = a³ + 3a²b + 3ab² + b³.',
   20
-),
-
--- ── Ejercicio 4: Factoriza ────────────────────────────────────
-
-(
-  '[Álgebra 4a] Factoriza 4x² − 25.',
-  '(2x − 5)²',
-  '(4x − 5)(x + 5)',
-  '(2x + 5)(2x − 5)',
-  '(2x − 5)(2x + 25)',
-  'C',
-  '4x²−25 = (2x)²−5². Es una diferencia de cuadrados perfectos: a²−b² = (a+b)(a−b), con a=2x y b=5.',
-  21
-),
-
-(
-  '[Álgebra 4b] Factoriza 2x² + 5x − 12.',
-  '(2x − 3)(x + 4)',
-  '(2x + 3)(x − 4)',
-  '(x + 3)(2x − 4)',
-  '(2x − 4)(x + 3)',
-  'A',
-  'Buscamos dos factores (2x + m)(x + n) donde m·n = −12 y 2n+m = 5. Probando m=−3, n=4: (2x−3)(x+4) = 2x²+8x−3x−12 = 2x²+5x−12 ✓.',
-  22
-),
-
-(
-  '[Álgebra 4c] Factoriza x³ − 3x² − 4x + 12.',
-  '(x − 3)(x − 2)(x + 2)',
-  '(x + 3)(x² − 4)',
-  '(x² − 4)(x + 3)',
-  '(x − 2)(x² + 2)',
-  'A',
-  'Agrupando: x²(x−3) − 4(x−3) = (x²−4)(x−3) = (x−2)(x+2)(x−3). Los tres factores lineales son (x−2), (x+2) y (x−3).',
-  23
-),
-
-(
-  '[Álgebra 4d] Factoriza x⁴ + 27x.',
-  'x(x³ + 27)',
-  'x(x + 3)(x² − 3x + 9)',
-  'x(x + 3)²(x − 3)',
-  'Tanto A como B son formas válidas',
-  'D',
-  'x⁴+27x = x(x³+27). Como x³+27 es suma de cubos: x(x+3)(x²−3x+9). Tanto A (sin terminar) como B (completamente factorizado) son formas válidas; B es la forma más reducida.',
-  24
-),
-
-(
-  '[Álgebra 4e] Factoriza 3x^(3/2) − 9x^(1/2) + 6x^(-1/2).',
-  '3x^(-1/2)(x² − 3x + 2)',
-  '3x^(-1/2)(x − 1)(x − 2)',
-  '3(x − 1)(x − 2) / √x',
-  'Todas las anteriores son equivalentes',
-  'D',
-  'Factor común 3x^(-1/2): 3x^(-1/2)(x²−3x+2) = 3x^(-1/2)(x−1)(x−2) = 3(x−1)(x−2)/√x. Las tres formas son equivalentes.',
-  25
-),
-
-(
-  '[Álgebra 4f] Factoriza x³y − 4xy.',
-  'xy(x² − 4)',
-  'xy(x + 2)(x − 2)',
-  'x(x²y − 4y)',
-  'Tanto A como B son correctas',
-  'D',
-  'xy(x²−4) es el factoreo con monomio común. Como x²−4 es diferencia de cuadrados, la forma completamente factorizada es xy(x+2)(x−2). A y B son ambas correctas (A es el paso intermedio).',
-  26
-),
-
--- ── Ejercicio 5: Simplifica expresiones racionales ───────────
-
-(
-  '[Álgebra 5a] Simplifica (x² + 3x + 2) / (x² − x − 2).',
-  '(x + 1)/(x − 1)',
-  '(x + 2)/(x − 2)',
-  '(x + 2)/(x + 1)',
-  '3x/(−x)',
-  'B',
-  'Numerador: (x+1)(x+2). Denominador: (x+1)(x−2). Cancelando (x+1) (con x ≠ −1): resultado = (x+2)/(x−2).',
-  27
-),
-
-(
-  '[Álgebra 5b] Simplifica [(2x²−x−1)/(x²−9)] · [(x+3)/(2x+1)].',
-  '(x−1)/(x−3)',
-  '(x+1)/(x+3)',
-  '(2x+1)/(x−3)',
-  '(x−1)/(x+3)',
-  'A',
-  'Factorizando: (2x+1)(x−1)/[(x+3)(x−3)] · (x+3)/(2x+1). Se cancelan (2x+1) y (x+3), quedando (x−1)/(x−3).',
-  28
-),
-
-(
-  '[Álgebra 5c] Simplifica x²/(x²−4) − (x+1)/(x+2).',
-  '(x+2)/(x−2)',
-  '1/(x−2)',
-  '(x−1)/(x−2)',
-  '(x+1)/(x−2)',
-  'B',
-  'MCD = (x+2)(x−2). Reescribiendo: x²/[(x+2)(x−2)] − (x+1)(x−2)/[(x+2)(x−2)] = [x²−(x²−x−2)] / [(x+2)(x−2)] = (x+2)/[(x+2)(x−2)] = 1/(x−2).',
-  29
-),
-
-(
-  '[Álgebra 5d] Simplifica (y/x − x/y) / (1/y − 1/x).',
-  'x + y',
-  '−(x + y)',
-  '(x + y)/(x − y)',
-  '1',
-  'B',
-  'Numerador: (y²−x²)/(xy). Denominador: (x−y)/(xy). Dividiendo: (y²−x²)/(x−y) = (y+x)(y−x)/(x−y) = −(x+y)(x−y)/(x−y) = −(x+y).',
-  30
 );
 
 -- ============================================================
@@ -401,35 +255,35 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
 INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta, explicacion, orden) VALUES
 
 (
-  '¿Cuál es el valor de lím(x→1) (x² − 1) / (x − 1)?',
-  '0',
-  '1',
-  '2',
-  'No existe',
-  'C',
-  'Factorizando: (x²−1)/(x−1) = (x+1)(x−1)/(x−1) = x+1. Evaluando en x=1 obtenemos 1+1 = 2.',
+  '¿Cuál es la pendiente de la función lineal f(x) = 3x + 5?',
+  '5',
+  '3',
+  'x',
+  '8',
+  'B',
+  'En una función lineal f(x) = mx + b, m es la pendiente y b es la ordenada al origen. Aquí m = 3 y b = 5, por lo tanto la pendiente es 3.',
   31
 ),
 
 (
-  'Una función f es continua en x = a si y solo si:',
-  'f(a) está definida',
-  'lím(x→a) f(x) existe',
-  'lím(x→a) f(x) = f(a) y ambos existen',
-  'f es derivable en a',
+  '¿Cuál es la ordenada al origen de f(x) = 2x − 4?',
+  '2',
+  '−2',
+  '−4',
+  '4',
   'C',
-  'La definición de continuidad exige tres condiciones simultáneas: f(a) definida, el límite existe y ambos son iguales. La derivabilidad es una condición más fuerte (implica continuidad, pero no al revés).',
+  'La ordenada al origen es el valor de f cuando x = 0: f(0) = 2·0 − 4 = −4. En f(x) = mx + b, el término b es siempre la ordenada al origen.',
   32
 ),
 
 (
-  '¿Cuánto vale lím(x→0) sen(x) / x?',
-  '0',
-  '∞',
-  'No existe',
-  '1',
-  'D',
-  'Este es el límite trigonométrico fundamental. Geométricamente se puede demostrar con el teorema del emparedado (Sandwich). El resultado es 1 y es clave en el cálculo de derivadas trigonométricas.',
+  'Si f(x) = −x + 7, ¿cuál es el valor de f(3)?',
+  '4',
+  '−4',
+  '10',
+  '−10',
+  'A',
+  'Se reemplaza x = 3 en la función: f(3) = −3 + 7 = 4. Para evaluar una función en un punto, simplemente se sustituye el valor de x en la expresión.',
   33
 ),
 
@@ -445,50 +299,6 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
 ),
 
 (
-  '¿Cuál de los siguientes conjuntos es un ejemplo de conjunto abierto en ℝ?',
-  '[0, 1]',
-  '[0, 1)',
-  '(0, 1)',
-  '{0, 1}',
-  'C',
-  'Un conjunto abierto en ℝ no contiene sus puntos frontera. El intervalo (0,1) excluye tanto el 0 como el 1, por lo que todos sus puntos son interiores. [0,1] es cerrado, [0,1) es semiabierto, y {0,1} es un conjunto finito (cerrado).',
-  35
-),
-
-(
-  'Si f(x) = eˣ, ¿cuál es su derivada f''(x)?',
-  'xeˣ⁻¹',
-  'eˣ · x',
-  'eˣ',
-  '0',
-  'C',
-  'La función exponencial natural eˣ es su propia derivada: d/dx(eˣ) = eˣ. Esta propiedad única la convierte en una función fundamental del análisis matemático.',
-  36
-),
-
-(
-  '¿Qué expresa el Teorema del Valor Medio de Lagrange?',
-  'Toda función continua alcanza su máximo y mínimo en un intervalo cerrado',
-  'Si f es continua en [a,b] y derivable en (a,b), existe c ∈ (a,b) tal que f''(c) = [f(b)−f(a)]/(b−a)',
-  'Si f(a) y f(b) tienen signos opuestos, existe c ∈ (a,b) tal que f(c) = 0',
-  'La derivada de una función constante es cero',
-  'B',
-  'El TVM de Lagrange garantiza la existencia de al menos un punto c donde la pendiente de la tangente iguala a la pendiente de la secante entre a y b. La opción C describe el Teorema de Bolzano (caso particular del TVI).',
-  37
-),
-
-(
-  'La regla de la cadena para (f ∘ g)''(x) es:',
-  'f''(x) + g''(x)',
-  'f''(x) · g''(x)',
-  'f''(g(x)) · g''(x)',
-  'f(g''(x))',
-  'C',
-  'La regla de la cadena establece que la derivada de una función compuesta es: derivada de la función exterior evaluada en la interior, multiplicada por la derivada de la función interior. Ejemplo: d/dx[sen(x²)] = cos(x²)·2x.',
-  38
-),
-
-(
   'Un número real r es racional si:',
   'Es la raíz cuadrada de un entero',
   'Puede escribirse como p/q con p,q ∈ ℤ y q ≠ 0',
@@ -497,15 +307,4 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
   'B',
   'Los racionales son exactamente los números que se pueden expresar como cociente de dos enteros con denominador no nulo. Los irracionales (como √2 o π) tienen decimales infinitos no periódicos y NO pueden expresarse como p/q.',
   39
-),
-
-(
-  '¿Cuál es el límite lím(x→∞) (3x² + 2x) / (x² − 5)?',
-  '0',
-  '3',
-  '∞',
-  '2',
-  'B',
-  'Para límites al infinito de funciones racionales, se divide numerador y denominador por la mayor potencia de x (aquí x²): (3 + 2/x) / (1 − 5/x²). Cuando x→∞, los términos con x en denominador tienden a 0, quedando 3/1 = 3.',
-  40
 );

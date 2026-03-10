@@ -291,6 +291,53 @@ def vista_estudiante():
             st.rerun()
 
 
+def _live_stats(preg: dict, n_total_estudiantes: int):
+    """Fragment que se auto-refresca cada 5 s con las estadísticas en vivo."""
+    res = (
+        supabase.table("respuestas")
+        .select("respuesta_elegida, es_correcta, usuario_id")
+        .eq("pregunta_id", preg["id"])
+        .execute()
+    )
+    datos = res.data or []
+    n_respondieron = len({r["usuario_id"] for r in datos})
+    n_ok = sum(1 for r in datos if r["es_correcta"])
+
+    # ── Métricas ──
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Estudiantes conectados", n_total_estudiantes)
+    c2.metric("Respondieron", n_respondieron)
+    pct_ok = (n_ok / len(datos) * 100) if datos else 0
+    c3.metric("% Correctas", f"{pct_ok:.0f}%" if datos else "—")
+
+    st.progress(n_respondieron / n_total_estudiantes if n_total_estudiantes else 0)
+
+    # ── Distribución de respuestas ──
+    if datos:
+        conteo = {"A": 0, "B": 0, "C": 0, "D": 0}
+        for r in datos:
+            conteo[r["respuesta_elegida"]] = conteo.get(r["respuesta_elegida"], 0) + 1
+
+        labels = [
+            f"A) {preg['opcion_a']}",
+            f"B) {preg['opcion_b']}",
+            f"C) {preg['opcion_c']}",
+            f"D) {preg['opcion_d']}",
+        ]
+        valores = [conteo[l] for l in ["A","B","C","D"]]
+        correcta = preg["respuesta_correcta"]
+
+        dist_df = pd.DataFrame({
+            "Opción": [f"{'✅ ' if l == correcta else ''}{lbl}"
+                       for l, lbl in zip(["A","B","C","D"], labels)],
+            "Respuestas": valores,
+        }).set_index("Opción")
+
+        st.bar_chart(dist_df)
+    else:
+        st.info("Esperando respuestas…")
+
+
 def vista_admin():
     usuario = st.session_state["usuario"]
 
@@ -302,101 +349,168 @@ def vista_admin():
             st.rerun()
 
     st.title("📊 Panel del Docente — AMI")
-    st.markdown("---")
 
-    todas = obtener_todas_respuestas()
+    tab_clase, tab_analisis = st.tabs(["🎓 Modo Clase  (Live)", "📊 Análisis completo"])
 
-    if not todas:
-        st.info("Aún no hay respuestas registradas.")
-        return
+    # ══════════════════════════════════════════
+    # TAB 1 — MODO CLASE EN VIVO
+    # ══════════════════════════════════════════
+    with tab_clase:
+        preguntas_objs = obtener_preguntas()
+        if not preguntas_objs:
+            st.info("No hay preguntas activas cargadas.")
+        else:
+            preguntas_objs = sorted(preguntas_objs, key=lambda p: p["orden"])
 
-    df = pd.DataFrame(todas)
+            # Número de estudiantes conectados (cualquier usuario que haya respondido al menos 1)
+            res_usuarios = supabase.table("respuestas").select("usuario_id").execute()
+            n_total_est = len({r["usuario_id"] for r in (res_usuarios.data or [])})
 
-    # Aplanar columnas anidadas
-    df["nombre_est"]    = df["usuarios"].apply(lambda u: u["nombre"] if u else "—")
-    df["dni_est"]       = df["usuarios"].apply(lambda u: u["dni"]    if u else "—")
-    df["enunciado"]     = df["preguntas"].apply(lambda p: p["enunciado"][:60] + "…" if p else "—")
-    df["orden_preg"]    = df["preguntas"].apply(lambda p: p["orden"] if p else 0)
-    df["resp_correcta"] = df["preguntas"].apply(lambda p: p["respuesta_correcta"] if p else "?")
+            # Navegación de pregunta
+            if "admin_q_idx" not in st.session_state:
+                st.session_state["admin_q_idx"] = 0
 
-    # ── Métricas globales ──
-    col1, col2, col3 = st.columns(3)
-    n_estudiantes = df["usuario_id"].nunique()
-    total_resp    = len(df)
-    pct_ok        = df["es_correcta"].mean() * 100
+            idx = st.session_state["admin_q_idx"]
+            idx = max(0, min(idx, len(preguntas_objs) - 1))
 
-    col1.metric("Estudiantes", n_estudiantes)
-    col2.metric("Respuestas totales", total_resp)
-    col3.metric("% Correctas global", f"{pct_ok:.1f}%")
+            st.markdown("### Pregunta actual")
+            nav1, nav2, nav3 = st.columns([1, 8, 1])
+            with nav1:
+                if st.button("◀", key="adm_prev", disabled=(idx == 0)):
+                    st.session_state["admin_q_idx"] = idx - 1
+                    st.rerun()
+            with nav2:
+                st.markdown(
+                    f"<center><b>Pregunta {idx + 1} de {len(preguntas_objs)}</b></center>",
+                    unsafe_allow_html=True,
+                )
+            with nav3:
+                if st.button("▶", key="adm_next", disabled=(idx == len(preguntas_objs) - 1)):
+                    st.session_state["admin_q_idx"] = idx + 1
+                    st.rerun()
 
-    st.markdown("---")
+            preg = preguntas_objs[idx]
 
-    # ── Estadísticas por pregunta ──
-    st.subheader("📌 Estadísticas por pregunta")
+            # Enunciado + opciones
+            st.markdown("---")
+            st.markdown(f"#### {preg['enunciado']}")
+            for letra, campo in zip(["A","B","C","D"],
+                                    ["opcion_a","opcion_b","opcion_c","opcion_d"]):
+                marker = "✅ " if letra == preg["respuesta_correcta"] else ""
+                st.markdown(f"- **{letra})** {marker}{preg[campo]}")
 
-    preguntas_objs = obtener_preguntas()
-    for preg in sorted(preguntas_objs, key=lambda p: p["orden"]):
-        df_p = df[df["pregunta_id"] == preg["id"]]
-        if df_p.empty:
-            continue
+            st.markdown("---")
+            st.markdown("#### 📡 Respuestas en vivo")
 
-        n_total   = len(df_p)
-        n_ok      = df_p["es_correcta"].sum()
-        pct_preg  = n_ok / n_total * 100
+            # Botón de refresco manual + auto-refresco con fragment
+            col_ref, _ = st.columns([1, 5])
+            with col_ref:
+                if st.button("🔄 Actualizar", key="adm_refresh"):
+                    st.rerun()
 
-        with st.expander(f"P{preg['orden']}. {preg['enunciado'][:70]}…  —  {pct_preg:.0f}% correctas"):
-            # Distribución de respuestas
-            dist = df_p["respuesta_elegida"].value_counts().reindex(["A","B","C","D"], fill_value=0)
-            dist_pct = (dist / n_total * 100).round(1)
+            # Fragment con auto-refresco cada 5 segundos
+            @st.fragment(run_every=5)
+            def live_block():
+                _live_stats(preg, n_total_est)
 
-            dist_df = pd.DataFrame({
-                "Opción": [
-                    f"A) {preg['opcion_a']}",
-                    f"B) {preg['opcion_b']}",
-                    f"C) {preg['opcion_c']}",
-                    f"D) {preg['opcion_d']}",
-                ],
-                "Respuestas": dist.values,
-                "% del total": dist_pct.values,
-                "Correcta": ["✅" if l == preg["respuesta_correcta"] else "" for l in ["A","B","C","D"]],
-            })
-            st.dataframe(dist_df, use_container_width=True, hide_index=True)
-            st.bar_chart(dist_pct, y_label="% estudiantes")
+            live_block()
 
-    st.markdown("---")
+    # ══════════════════════════════════════════
+    # TAB 2 — ANÁLISIS COMPLETO
+    # ══════════════════════════════════════════
+    with tab_analisis:
+        todas = obtener_todas_respuestas()
 
-    # ── Historial por estudiante ──
-    st.subheader("👥 Historial por estudiante")
+        if not todas:
+            st.info("Aún no hay respuestas registradas.")
+            return
 
-    estudiantes = df[["usuario_id","nombre_est","dni_est"]].drop_duplicates()
-    for _, row in estudiantes.iterrows():
-        df_est = df[df["usuario_id"] == row["usuario_id"]].sort_values("orden_preg")
-        n_ok   = df_est["es_correcta"].sum()
-        n_tot  = len(df_est)
+        df = pd.DataFrame(todas)
 
-        with st.expander(f"**{row['nombre_est']}** — DNI {row['dni_est']}  |  {n_ok}/{n_tot} correctas"):
-            tabla = df_est[["enunciado","respuesta_elegida","resp_correcta","es_correcta"]].copy()
-            tabla.columns = ["Pregunta","Elegida","Correcta","¿Acertó?"]
-            tabla["¿Acertó?"] = tabla["¿Acertó?"].map({True: "✅", False: "❌"})
-            st.dataframe(tabla, use_container_width=True, hide_index=True)
+        # Aplanar columnas anidadas
+        df["nombre_est"]    = df["usuarios"].apply(lambda u: u["nombre"] if u else "—")
+        df["dni_est"]       = df["usuarios"].apply(lambda u: u["dni"]    if u else "—")
+        df["enunciado"]     = df["preguntas"].apply(lambda p: p["enunciado"][:60] + "…" if p else "—")
+        df["orden_preg"]    = df["preguntas"].apply(lambda p: p["orden"] if p else 0)
+        df["resp_correcta"] = df["preguntas"].apply(lambda p: p["respuesta_correcta"] if p else "?")
 
-    st.markdown("---")
+        # ── Métricas globales ──
+        col1, col2, col3 = st.columns(3)
+        n_estudiantes = df["usuario_id"].nunique()
+        total_resp    = len(df)
+        pct_ok        = df["es_correcta"].mean() * 100
 
-    # ── Tabla completa descargable ──
-    st.subheader("⬇️ Exportar datos")
-    export_df = df[["nombre_est","dni_est","enunciado","respuesta_elegida",
-                    "resp_correcta","es_correcta","created_at"]].copy()
-    export_df.columns = ["Nombre","DNI","Pregunta","Respuesta elegida",
-                         "Respuesta correcta","Correcto","Fecha"]
-    export_df["Correcto"] = export_df["Correcto"].map({True: "Sí", False: "No"})
+        col1.metric("Estudiantes", n_estudiantes)
+        col2.metric("Respuestas totales", total_resp)
+        col3.metric("% Correctas global", f"{pct_ok:.1f}%")
 
-    csv = export_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "Descargar CSV completo",
-        data=csv,
-        file_name="respuestas_ami.csv",
-        mime="text/csv",
-    )
+        st.markdown("---")
+
+        # ── Estadísticas por pregunta ──
+        st.subheader("📌 Estadísticas por pregunta")
+
+        preguntas_all = obtener_preguntas()
+        for preg in sorted(preguntas_all, key=lambda p: p["orden"]):
+            df_p = df[df["pregunta_id"] == preg["id"]]
+            if df_p.empty:
+                continue
+
+            n_total  = len(df_p)
+            n_ok     = df_p["es_correcta"].sum()
+            pct_preg = n_ok / n_total * 100
+
+            with st.expander(f"P{preg['orden']}. {preg['enunciado'][:70]}…  —  {pct_preg:.0f}% correctas"):
+                dist     = df_p["respuesta_elegida"].value_counts().reindex(["A","B","C","D"], fill_value=0)
+                dist_pct = (dist / n_total * 100).round(1)
+
+                dist_df = pd.DataFrame({
+                    "Opción": [
+                        f"A) {preg['opcion_a']}",
+                        f"B) {preg['opcion_b']}",
+                        f"C) {preg['opcion_c']}",
+                        f"D) {preg['opcion_d']}",
+                    ],
+                    "Respuestas": dist.values,
+                    "% del total": dist_pct.values,
+                    "Correcta": ["✅" if l == preg["respuesta_correcta"] else "" for l in ["A","B","C","D"]],
+                })
+                st.dataframe(dist_df, use_container_width=True, hide_index=True)
+                st.bar_chart(dist_pct, y_label="% estudiantes")
+
+        st.markdown("---")
+
+        # ── Historial por estudiante ──
+        st.subheader("👥 Historial por estudiante")
+
+        estudiantes = df[["usuario_id","nombre_est","dni_est"]].drop_duplicates()
+        for _, row in estudiantes.iterrows():
+            df_est = df[df["usuario_id"] == row["usuario_id"]].sort_values("orden_preg")
+            n_ok   = df_est["es_correcta"].sum()
+            n_tot  = len(df_est)
+
+            with st.expander(f"**{row['nombre_est']}** — DNI {row['dni_est']}  |  {n_ok}/{n_tot} correctas"):
+                tabla = df_est[["enunciado","respuesta_elegida","resp_correcta","es_correcta"]].copy()
+                tabla.columns = ["Pregunta","Elegida","Correcta","¿Acertó?"]
+                tabla["¿Acertó?"] = tabla["¿Acertó?"].map({True: "✅", False: "❌"})
+                st.dataframe(tabla, use_container_width=True, hide_index=True)
+
+        st.markdown("---")
+
+        # ── Tabla completa descargable ──
+        st.subheader("⬇️ Exportar datos")
+        export_df = df[["nombre_est","dni_est","enunciado","respuesta_elegida",
+                        "resp_correcta","es_correcta","created_at"]].copy()
+        export_df.columns = ["Nombre","DNI","Pregunta","Respuesta elegida",
+                             "Respuesta correcta","Correcto","Fecha"]
+        export_df["Correcto"] = export_df["Correcto"].map({True: "Sí", False: "No"})
+
+        csv = export_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            "Descargar CSV completo",
+            data=csv,
+            file_name="respuestas_ami.csv",
+            mime="text/csv",
+        )
 
 
 # ──────────────────────────────────────────────

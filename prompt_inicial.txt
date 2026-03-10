@@ -1,19 +1,66 @@
+============================================================
+PROMPT 1 — App principal
+============================================================
 Desarrolla un app en streamlit para una clase inicial de matemática.
 
-Quiero hacer un ejercicio en clase de Análisis Matemático I en donde les hago preguntas a los estudiantes y ellos responden. 
+Quiero hacer un ejercicio en clase de Análisis Matemático I en donde les hago preguntas a los estudiantes y ellos responden.
 
 Necesitaría luego saber qué respondieron y en qué porcentajes.
 
 Quiero que cada estudiante se pueda logear fácilmente tan sólo entrando su nombre y dni, y que luego eso genere un historial de todas sus preguntas.
 
-Yo debo tener un usuario con mail facundo@pymetech.com.ar que tenga acceso a ver las respuestas y estadisticas de lo que va respondiendo los estudiantes
+Yo debo tener un usuario con mail facundo@pymetech.com.ar que tenga acceso a ver las respuestas y estadisticas de lo que va respondiendo los estudiantes.
 
 No uses los accesos de usuarios por autenticación a la base de datos SQL, sino un sistema sencillo de usuarios en una tabla SQL.
 
-En tokens.py tienes las credenciales para una base de datos en supabase para usar en la app de streamlit. Crea un .gitignore que oculte tokens.py
+En tokens.py tienes las credenciales para una base de datos en supabase para usar en la app de streamlit. Crea un .gitignore que oculte tokens.py.
 
-En tablas.sql dame la sintaxis SQL para generar las tablas necesarias para que funcione la app
+En tablas.sql dame la sintaxis SQL para generar las tablas necesarias para que funcione la app.
 
-Estas son las preguntas que quiero hacer. Para cada pregunta da 4 respuestas y luego de que el estudiante responda muestra la respuesta correcta y una pequeña explicación creada por tienes
+Para cada pregunta da 4 respuestas y luego de que el estudiante responda muestra la respuesta correcta y una pequeña explicación.
 
+============================================================
+PROMPT 2 — Preguntas de álgebra básica
+============================================================
+Agrega los siguientes ejercicios básicos de álgebra antes de las preguntas de Análisis Matemático I:
+
+1. Evalúa cada expresión sin usar calculadora:
+   (-3)^4, -3^4, 3^(-4), 5^23/5^21, (2/3)^(-2), 16^(-3/4)
+
+2. Simplifica cada expresión (sin exponentes negativos):
+   √200 − √32, (3a³b³)(4ab²)², (3x^(3/2)y³ / x²y^(-1/2))^(-2)
+
+3. Desarrolla y simplifica:
+   3(x+6)+4(2x−5), (x+3)(4x−5), (√a+√b)(√a−√b), (2x+3)², (x+2)³
+
+4. Factoriza cada expresión:
+   4x²−25, 2x²+5x−12, x³−3x²−4x+12, x⁴+27x,
+   3x^(3/2)−9x^(1/2)+6x^(-1/2), x³y−4xy
+
+5. Simplifica la expresión racional:
+   (x²+3x+2)/(x²−x−2),
+   [(2x²−x−1)/(x²−9)]·[(x+3)/(2x+1)],
+   x²/(x²−4)−(x+1)/(x+2),
+   (y/x − x/y)/(1/y − 1/x)
+
+============================================================
+PROMPT 3 — Preguntas de términos y distributiva
+============================================================
+Agrega 6 preguntas muy fáciles donde los estudiantes practiquen separación en términos y propiedad distributiva.
+
+============================================================
+PROMPT 4 — Cambio de pregunta puntual
+============================================================
+Cambia '¿Cuál es el coeficiente del término −8x³?' por
+'¿Cómo se resuelve 3(2+4) − 2/4 + 8(4+4)?'
+
+============================================================
+PROMPT 5 — Reordenar secciones
+============================================================
+Pon las preguntas de la sección "TÉRMINOS Y PROPIEDAD DISTRIBUTIVA (nivel básico)" en primer lugar.
+
+============================================================
+PROMPT 6 — Deploy en Streamlit Cloud
+============================================================
+Quiero subir la app a Streamlit Cloud. Crea un archivo secrets para poder copiar y pegar el supabase_id y la key. Modifica app.py si es necesario para leer las credenciales desde st.secrets, con fallback a tokens.py para desarrollo local.
 
