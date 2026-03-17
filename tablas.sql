@@ -288,6 +288,28 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
 ),
 
 (
+  '¿Cuál es el valor de f(2) si f(x) = x² + 1?',
+  '3',
+  '5',
+  '9',
+  '2',
+  'B',
+  'Se reemplaza x = 2: f(2) = 2² + 1 = 4 + 1 = 5. En una función cuadrática f(x) = ax² + bx + c se evalúa igual que cualquier función: se sustituye el valor de x en la expresión.',
+  34
+),
+
+(
+  '¿Cuál es la derivada de f(x) = 7?',
+  '7',
+  '1',
+  '0',
+  '7x',
+  'C',
+  'La derivada de cualquier constante es 0. Geométricamente, f(x) = 7 es una recta horizontal con pendiente 0. Formalmente: f''(x) = lím(h→0) [7 − 7]/h = lím(h→0) 0/h = 0.',
+  35
+),
+
+(
   'La derivada de f(x) = x³ usando la definición es:',
   '3x',
   '3x²',
@@ -295,7 +317,18 @@ INSERT INTO preguntas (enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respue
   'x⁴/4',
   'B',
   'Aplicando la regla de potencias d/dx(xⁿ) = n·xⁿ⁻¹: d/dx(x³) = 3·x² . También se puede verificar desde la definición f''(x) = lím(h→0) [(x+h)³−x³]/h expandiendo el binomio.',
-  34
+  36
+),
+
+(
+  '¿Cuánto vale 5 / 0?',
+  '0',
+  '5',
+  'Infinito',
+  'No está definido',
+  'D',
+  'La división por cero no está definida en los números reales. No existe ningún número real x tal que 0·x = 5, por lo que la operación carece de resultado. En cálculo, cuando el denominador tiende a 0 se analiza el límite, pero la división exacta por cero nunca tiene valor.',
+  37
 ),
 
 (
